@@ -8,7 +8,8 @@ Code correspondence: Maria B. Jelen
 
 Repo contains code for analysis sections:
 
-1. Subjective Drug Response and Seed-based analysis (R Markdown)
-2. Network-based Statistic (MATLAB script)
-3. Opioid abstinence network comparison (MATLAB script)
+1. Subjective Drug Response and Correlation between Seed-based results and Drug response (R script)
+2. Seed-based analysis (R Markdown)
+3. Network-based Statistic (MATLAB script)
+4. Opioid abstinence network comparison (MATLAB script)
 
