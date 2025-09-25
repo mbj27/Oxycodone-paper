@@ -1,0 +1,100 @@
+---
+title: "ANOVA and LME"
+output: html_document
+date: "2024-01-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(lmerTest)
+library(rstatix) 
+library(effectsize)
+#sessionInfo()
+```
+
+#YIP DATA
+
+```{r}
+Ydata <- read.csv("YIP_DEQ.csv")
+
+Ydata$ID <- as.character(Ydata$ID)
+Ydata$Dose <- factor(Ydata$Dose, levels = c("placebo", "oxy"))
+Ydata$timepoint <- factor(Ydata$timepoint, levels = c("tp0","tp30","tp50","tp90","tp120","tp180","tp240"))
+
+str(Ydata)
+```
+
+```{r}
+#ANOVA models with dose, timepoint and time*dose interaction
+
+Y_f_m1 <- lmerTest::lmer(feel_value ~ Dose*timepoint + (1|ID), Ydata, na.action=na.omit)
+Y_h_m1 <- lmerTest::lmer(high_value ~ Dose*timepoint + (1|ID), Ydata, na.action=na.omit)
+Y_l_m1 <- lmerTest::lmer(like_value ~ Dose*timepoint + (1|ID), Ydata, na.action=na.omit)
+Y_m_m1 <- lmerTest::lmer(more_value ~ Dose*timepoint + (1|ID), Ydata, na.action=na.omit)
+
+print("DEQ feel model:")
+anova(Y_f_m1, type=3)
+
+print("DEQ high model:")
+anova(Y_h_m1, type=3)
+
+print("DEQ like model:")
+anova(Y_l_m1, type=3)
+
+print("DEQ more model:")
+anova(Y_m_m1, type=3)
+```
+
+```{r}
+# Calculate effect sizes
+effectsize::eta_squared(Y_f_m1, partial = TRUE)
+effectsize::eta_squared(Y_h_m1, partial = TRUE)
+effectsize::eta_squared(Y_l_m1, partial = TRUE)
+effectsize::eta_squared(Y_m_m1, partial = TRUE)
+
+```
+
+```{r}
+# Pairwise post hoc t-tests, adjusted with Bonferroni method (reported in supplementary materials)
+
+#like
+pt_f_m1 <- Ydata %>%
+  group_by(timepoint) %>%
+  pairwise_t_test(
+    feel_value ~ Dose, paired = F,
+    p.adjust.method = "bonferroni"
+    )
+
+#high
+pt_h_m1 <- Ydata %>%
+  group_by(timepoint) %>%
+  pairwise_t_test(
+    high_value ~ Dose, paired = F,
+    p.adjust.method = "bonferroni"
+    )
+
+#like
+pt_l_m1 <- Ydata %>%
+  group_by(timepoint) %>%
+  pairwise_t_test(
+    like_value ~ Dose, paired = F,
+    p.adjust.method = "bonferroni"
+    )
+#more
+pt_m_m1 <- Ydata %>%
+  group_by(timepoint) %>%
+  pairwise_t_test(
+    more_value ~ Dose, paired = F,
+    p.adjust.method = "bonferroni"
+    )
+
+pt_f_m1
+pt_h_m1
+pt_l_m1
+pt_m_m1
+```
+
