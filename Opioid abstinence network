@@ -1,0 +1,85 @@
+%% load masks and extract net strength 
+
+%% extract network strength
+clear all
+%%% path to fMRI matrices
+load('/Users/mariajelen/Desktop/YIP LAB/NBS/opioid network/mean_matrices_placebo2.mat');                                                                                                                                                                         
+load('/Users/mariajelen/Desktop/YIP LAB/NBS/opioid network/mean_matrices_oxy2.mat');
+
+%%% paths to opioid abstinence network masks
+%% load network masks
+neg_mask=load('/Users/mariajelen/Desktop/YIP LAB/NBS/opioid network/neg_op_net.txt');
+pos_mask=load('/Users/mariajelen/Desktop/YIP LAB/NBS/opioid network/pos_op_net.txt');
+
+% define subject number and open storage mats for edge strength
+nSubj = 14; % number of participants
+
+edgestrengthpos_oxy = zeros(nSubj,1);
+edgestrengthneg_oxy = zeros(nSubj,1);
+edgestrengthpos_placebo = zeros(nSubj,1);
+edgestrengthneg_placebo = zeros(nSubj,1);
+
+%%% for number of matrices in your dataset
+  for i= 1:nSubj
+% Oxycodone condition
+    product_pos = mean_matrices_oxy(:,:,i) .* pos_mask;
+    edgestrengthpos_oxy(i) = sum(product_pos(:));
+    
+    product_neg = mean_matrices_oxy(:,:,i) .* neg_mask;
+    edgestrengthneg_oxy(i) = sum(product_neg(:));
+    
+% Placebo condition
+    product_pos = mean_matrices_placebo(:,:,i) .* pos_mask;
+    edgestrengthpos_placebo(i) = sum(product_pos(:));
+    
+    product_neg = mean_matrices_placebo(:,:,i) .* neg_mask;
+    edgestrengthneg_placebo(i) = sum(product_neg(:));
+  end
+
+%% Save edge strenghts for oxycodone and placebo conditions  
+edgestrength_both_oxy = (-1 * edgestrengthneg_oxy) + edgestrengthpos_oxy;
+edgestrength_both_placebo = (-1 * edgestrengthneg_placebo) + edgestrengthpos_placebo;
+
+
+%% Perform paired t-tests to test oxy vs placebo
+[~,p_pos,~,stats_pos] = ttest(edgestrengthpos_oxy, edgestrengthpos_placebo);
+[~,p_neg,~,stats_neg] = ttest(edgestrengthneg_oxy, edgestrengthneg_placebo);
+[~,p_both,~,stats_both] = ttest(edgestrength_both_oxy, edgestrength_both_placebo);
+
+%% Print results
+fprintf('\nPositive edges: t = %.3f, p = %.4f\n', stats_pos.tstat, p_pos);
+fprintf('Negative edges: t = %.3f, p = %.4f\n', stats_neg.tstat, p_neg);
+fprintf('Combined edges: t = %.3f, p = %.4f\n\n', stats_both.tstat, p_both);
+
+%%% Save the files
+save('edgestrengthpos_oxy.txt','edgestrengthpos_oxy','-ascii');
+save('edgestrengthpos_placebo.txt','edgestrengthpos_placebo','-ascii');
+save('edgestrengthneg_oxy.txt','edgestrengthneg_oxy','-ascii');
+save('edgestrengthneg_placebo.txt','edgestrengthneg_placebo','-ascii');
+save('edgestrength_both_oxy.txt','edgestrength_both_oxy','-ascii');
+save('edgestrength_both_placebo.txt','edgestrength_both_placebo','-ascii');
+
+%% Bonferroni correction across the three tests
+p_vals = [p_pos, p_neg, p_both];
+t_vals = [stats_pos.tstat, stats_neg.tstat, stats_both.tstat];
+labels = {'Positive edges','Negative edges','Combined edges'};
+
+% Apply Bonferroni correction
+p_corr = min(p_vals * 3, 1); 
+
+% Print summary table
+fprintf('\n%-15s\t%-5s\t%-5s\t%-5s\t%-5s\n','Circuit','t','p','p_corr','Significant');
+for i = 1:length(labels)
+    sig = 'No';
+    if p_corr(i) < 0.05
+        sig = 'Yes';
+    end
+    fprintf('%-15s\t%.3f\t%.4f\t%.4f\t%s\n', labels{i}, t_vals(i), p_vals(i), p_corr(i), sig);
+end
+
+% Count unique edges (upper triangle only, excluding diagonal)
+n_pos_edges = nnz(triu(pos_mask, 1));
+n_neg_edges = nnz(triu(neg_mask, 1));
+
+fprintf('Unique positive edges: %d\n', n_pos_edges);
+fprintf('Unique negative edges: %d\n', n_neg_edges);
