@@ -1,0 +1,5 @@
+NBS analysis was run in MATLAB NBS using the GUI
+Resulting files are provided.
+
+Results are presented for the conservative threshold of 3.5 (reported in main manuscript) for positive (run6_inc_3.5.mat) and negative (run3_dec_3.5.mat) edges. 
+as well as for lower threshold of 3.1 (supplementary materials) for positive (run4_inc_3.1.mat) and negative (run1_dec_3.1.mat) edges.
