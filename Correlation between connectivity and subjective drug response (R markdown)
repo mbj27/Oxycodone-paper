@@ -1,0 +1,44 @@
+---
+title: "correlationOXY"
+output: html_document
+date: "2024-04-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#import libraries
+library(tidyverse)
+library(Hmisc)
+library(hrbrthemes)
+#sessionInfo()
+```
+
+```{r}
+# read in data
+# structure: participant ID, averaged connectivity edges for each ROI pairing, subjective drug experience scores (DEQ)
+data_corr<- read.csv("Corr_analysis_seed.csv")
+
+```
+
+```{r}
+# calculate correlation matrix
+cor_oxy<- rcorr(as.matrix(data_corr))
+cor_oxy
+
+df_corr=data.frame(cor_oxy$r)
+write.csv(df_corr,'correlationmatrix.csv')
+df_corr_p=data.frame(cor_oxy$P)
+write.csv(df_corr_p,'correlationmatrix_p.csv')
+
+
+# show rounded output in console
+cat("Correlation matrix (3 decimals):\n")
+print(round(cor_oxy$r, 3))
+
+cat("\nP-value matrix (3 decimals):\n")
+print(round(cor_oxy$P, 3))
+
+```
