@@ -1,0 +1,144 @@
+clc;
+clear all;
+
+% Load the mean matrices
+load('mean_matrices_oxy2.mat');
+load('mean_matrices_placebo2.mat');
+
+% Define the specific cells and their groups
+% First group: R dACC (83 and 84) and L dACC (219, 220 and 221) (2x3)
+% Second group: R dACC and R insula (2x4)
+% Third group: R dACC and L insula (2x3)
+% Fourth group: R dACC and R putamen (2x2)
+% Fifth group: R dACC and L putamen (2x1)
+% Sixth group: L dACC and R insula (3x4)
+% Seventh group: L dACC and L insula (3x3)
+% Eigth group: L dACC and R putamen (3x2)
+% Ninth group: L dACC and L putamen (3x1)
+
+% Cells corresponding to my groups
+specific_cells = [
+    83, 219, 1; % Cell coordinates (i, j) and group identifier
+    83, 220, 1;
+    83, 221, 1;
+    84, 219, 1;
+    84, 220, 1;
+    84, 221, 1;
+    83, 34, 2;
+    83, 35, 2;
+    83, 36, 2;
+    83, 37, 2;
+    84, 34, 2;
+    84, 35, 2;
+    84, 36, 2;
+    84, 37, 2;
+    83, 168, 3;
+    83, 169, 3;
+    83, 170, 3;
+    84, 168, 3;
+    84, 169, 3;
+    84, 170, 3;
+    83, 124, 4;
+    83, 125, 4;
+    84, 124, 4;
+    84, 125, 4;
+    83, 261, 5;
+    84, 261, 5;
+    219, 34, 6;
+    219, 35, 6;
+    219, 36, 6;
+    219, 37, 6;
+    220, 34, 6;
+    220, 35, 6;
+    220, 36, 6;
+    220, 37, 6;
+    221, 34, 6;
+    221, 35, 6;
+    221, 36, 6;
+    221, 37, 6;
+    219, 168, 7;
+    219, 169, 7;
+    219, 170, 7;
+    220, 168, 7;
+    220, 169, 7;
+    220, 170, 7;
+    221, 168, 7;
+    221, 169, 7;
+    221, 170, 7;
+    219, 124, 8;
+    219, 125, 8;
+    220, 124, 8;
+    220, 125, 8;
+    221, 124, 8;
+    221, 125, 8;
+    219, 261, 9;
+    220, 261, 9;
+    221, 261, 9;
+
+
+];
+
+% Initialize variables to store group-wise connectivity values
+num_groups = max(specific_cells(:, 3));
+grouped_connectivity_oxy = cell(num_groups, 1);
+grouped_connectivity_placebo = cell(num_groups, 1);
+observed_p = zeros(num_groups, 1);
+observed_s = cell(num_groups, 1);
+
+% Extracts connectivty values
+for k = 1:size(specific_cells, 1)
+    i = specific_cells(k, 1);
+    j = specific_cells(k, 2);
+    group = specific_cells(k, 3);
+    
+    % Extract FC values for oxycodone and placebo
+    x_oxy = squeeze(mean_matrices_oxy(i,j,:));
+    y_placebo = squeeze(mean_matrices_placebo(i,j,:));
+    
+    % Store FC values for each condition
+    grouped_connectivity_oxy{group} = [grouped_connectivity_oxy{group}, x_oxy];
+    grouped_connectivity_placebo{group} = [grouped_connectivity_placebo{group}, y_placebo];
+end
+
+% Unpack data
+circuit1_oxy = mean(grouped_connectivity_oxy{1}, 2)
+circuit1_placebo = mean(grouped_connectivity_placebo{1}, 2)
+
+circuit2_oxy = mean(grouped_connectivity_oxy{2}, 2)
+circuit2_placebo = mean(grouped_connectivity_placebo{2}, 2)
+
+circuit3_oxy = mean(grouped_connectivity_oxy{3}, 2)
+circuit3_placebo = mean(grouped_connectivity_placebo{3}, 2)
+
+circuit4_oxy = mean(grouped_connectivity_oxy{4}, 2)
+circuit4_placebo = mean(grouped_connectivity_placebo{4}, 2)
+
+circuit5_oxy = mean(grouped_connectivity_oxy{5}, 2)
+circuit5_placebo = mean(grouped_connectivity_placebo{5}, 2)
+
+circuit6_oxy = mean(grouped_connectivity_oxy{6}, 2)
+circuit6_placebo = mean(grouped_connectivity_placebo{6}, 2)
+
+circuit7_oxy = mean(grouped_connectivity_oxy{7}, 2)
+circuit7_placebo = mean(grouped_connectivity_placebo{7}, 2)
+
+circuit8_oxy = mean(grouped_connectivity_oxy{8}, 2)
+circuit8_placebo = mean(grouped_connectivity_placebo{8}, 2)
+
+circuit9_oxy = mean(grouped_connectivity_oxy{9}, 2)
+circuit9_placebo = mean(grouped_connectivity_placebo{9}, 2)
+
+% Save data
+
+% Perform statistical tests on the grouped connectivity values
+for group = 1:num_groups
+    % Extract FC values for oxycodone and placebo for this group
+    x = grouped_connectivity_oxy{group};
+    y = grouped_connectivity_placebo{group};
+    
+    % Perform paired t-test
+    [h, p, ci, stats] = ttest(mean(x), mean(y));
+    observed_p(group) = p
+    observed_s{group} = stats;
+    new_bonferroni = min(observed_p * num_groups, 1);
+end
