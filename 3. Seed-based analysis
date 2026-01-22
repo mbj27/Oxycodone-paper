@@ -4,6 +4,7 @@ clear all;
 % Load the mean matrices
 load('mean_matrices_oxy2.mat');
 load('mean_matrices_placebo2.mat');
+% matrix of Shen atlas ROIs per partcipant, averaged per 3 resting scans of each participant
 
 % Define the specific cells and their groups
 % First group: R dACC (83 and 84) and L dACC (219, 220 and 221) (2x3)
@@ -16,7 +17,7 @@ load('mean_matrices_placebo2.mat');
 % Eigth group: L dACC and R putamen (3x2)
 % Ninth group: L dACC and L putamen (3x1)
 
-% Cells corresponding to my groups
+% Cells corresponding to groups
 specific_cells = [
     83, 219, 1; % Cell coordinates (i, j) and group identifier
     83, 220, 1;
