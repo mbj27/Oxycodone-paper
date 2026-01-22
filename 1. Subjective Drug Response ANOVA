@@ -20,6 +20,7 @@ library(effectsize)
 
 ```{r}
 Ydata <- read.csv("YIP_DEQ.csv")
+# YIP_DEQ is a dataframe of participants x DEQ scores for oxy and placebo conditions, across 7 timepoints
 
 Ydata$ID <- as.character(Ydata$ID)
 Ydata$Dose <- factor(Ydata$Dose, levels = c("placebo", "oxy"))
