@@ -3,8 +3,8 @@
 %% extract network strength
 clear all
 %%% path to fMRI matrices
-load('/Users/mariajelen/Desktop/YIP LAB/NBS/opioid network/mean_matrices_placebo2.mat');                                                                                                                                                                         
-load('/Users/mariajelen/Desktop/YIP LAB/NBS/opioid network/mean_matrices_oxy2.mat');
+load('/PATH/mean_matrices_placebo2.mat');                                                                                                                                                                         
+load('/PATH/mean_matrices_oxy2.mat');
 
 %%% paths to opioid abstinence network masks
 %% load network masks
